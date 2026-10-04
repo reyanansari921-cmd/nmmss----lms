@@ -1,0 +1,329 @@
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NMMSS सफलता बैच 2026-27</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f1f4fb;color:#18335d}
+header{background:#102e67;color:white;padding:18px;text-align:center}
+header h1{color:#ffd45c;font-size:23px}
+.layout{display:flex;min-height:85vh}
+nav{width:210px;background:#102e67;padding:12px;flex-shrink:0}
+nav button{display:block;width:100%;padding:13px 8px;margin:5px 0;
+border:0;border-radius:8px;background:transparent;color:white;
+text-align:left;font-size:15px}
+nav button.active,nav button:hover{background:#d9ad35;color:#102e67}
+main{padding:18px;flex:1;min-width:0}
+.card{background:white;padding:18px;margin:12px 0;border-radius:13px;
+box-shadow:0 2px 9px #0001}
+h2,h3{color:#102e67}
+input,textarea,select{display:block;width:100%;padding:12px;
+margin:9px 0;border:1px solid #bbc6d7;border-radius:7px;font-size:15px}
+.action{background:#d9ad35;color:#102e67;border:0;padding:11px 16px;
+border-radius:7px;font-weight:bold;margin:5px 0;cursor:pointer}
+.secondary{background:#102e67;color:white}
+.item{border:1px solid #dce3ee;border-radius:9px;padding:12px;margin:10px 0}
+small{color:#66758c}
+a{color:#174eaa}
+footer{text-align:center;padding:15px;color:#66758c}
+@media(max-width:650px){
+ .layout{display:block}
+ nav{width:100%;display:flex;overflow-x:auto;gap:5px}
+ nav button{min-width:110px;text-align:center}
+ main{padding:10px}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>🏆 NMMSS सफलता बैच</h1>
+<p>ऑनलाइन लर्निंग पोर्टल 2026-27</p>
+</header>
+
+<div class="layout">
+<nav id="menu">
+<button class="active" onclick="page('home',this)">🏠 होम</button>
+<button onclick="page('login',this)">👨‍🎓 विद्यार्थी लॉगिन</button>
+<button onclick="page('classes',this)">🎥 लाइव क्लास</button>
+<button onclick="page('notes',this)">📚 PDF नोट्स</button>
+<button onclick="page('tests',this)">📝 ऑनलाइन टेस्ट</button>
+<button onclick="page('results',this)">📊 रिजल्ट</button>
+<button onclick="page('certificate',this)">🏆 सर्टिफिकेट</button>
+<button onclick="page('admin',this)">⚙️ एडमिन पैनल</button>
+</nav>
+<main id="content"></main>
+</div>
+<footer>NMMSS सफलता बैच 2026-27</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+let data={notes:[],videos:[],tests:[],results:[]};
+try{
+ data=Object.assign(data,JSON.parse(localStorage.getItem("nmmssData")||"{}"));
+}catch(e){}
+let student=null,admin=false;
+
+function save(){
+ try{
+ localStorage.setItem("nmmssData",JSON.stringify(data));
+ return true;
+ }catch(e){
+ alert("स्टोरेज भर गया है। छोटी PDF चुनें या पुरानी सामग्री हटाएँ।");
+ return false;
+ }
+}
+function page(name,btn){
+ document.querySelectorAll("#menu button").forEach(b=>b.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+ const c=$("content");
+ if(name==="home")c.innerHTML=`
+ <div class="card">
+ <h2>स्वागत है! 🎓</h2>
+ <h3>NMMSS सफलता बैच 2026-27</h3>
+ <p>अपनी ऑनलाइन पढ़ाई यहाँ से शुरू करें।</p>
+ <p>MAT और SAT की तैयारी के लिए क्लास, नोट्स और टेस्ट उपलब्ध हैं।</p>
+ </div>`;
+ if(name==="login")showLogin();
+ if(name==="classes")showVideos();
+ if(name==="notes")showNotes();
+ if(name==="tests")showTests();
+ if(name==="results")showResults();
+ if(name==="certificate")c.innerHTML=`
+ <div class="card"><h2>🏆 सर्टिफिकेट</h2>
+ <p>प्रमाण-पत्र की सुविधा आगे जोड़ी जा सकती है।</p></div>`;
+ if(name==="admin")showAdmin();
+}
+function showLogin(){
+ $("content").innerHTML=`
+ <div class="card"><h2>👨‍🎓 विद्यार्थी लॉगिन</h2>
+ <input id="studentName" placeholder="अपना नाम">
+ <input id="studentMobile" placeholder="मोबाइल नंबर" inputmode="numeric">
+ <button class="action" onclick="studentLogin()">प्रवेश करें</button>
+ <p id="studentMsg"></p>
+ <small>यह डेमो लॉगिन है। इसमें OTP या सुरक्षित पासवर्ड नहीं है।</small>
+ </div>`;
+}
+function studentLogin(){
+ const n=$("studentName").value.trim();
+ const m=$("studentMobile").value.trim();
+ if(!n||!/^[0-9]{10}$/.test(m)){
+ $("studentMsg").textContent="नाम और 10 अंकों का मोबाइल नंबर डालें।";
+ return;
+ }
+ student={name:n,mobile:m};
+ $("studentMsg").textContent="स्वागत है, "+n+"!";
+}
+function showVideos(){
+ let html=`<div class="card"><h2>🎥 लाइव और रिकॉर्डेड क्लास</h2>
+ <a href="https://www.youtube.com/@ReyanAnsari-r9n" target="_blank">
+ <button class="action secondary">YouTube चैनल खोलें</button></a></div>`;
+ data.videos.forEach(v=>html+=`
+ <div class="card"><h3>${safe(v.title)}</h3>
+ <a href="${safe(v.url)}" target="_blank">▶️ क्लास देखें</a></div>`);
+ $("content").innerHTML=html;
+}
+function showNotes(){
+ let html=`<div class="card"><h2>📚 स्टडी मटेरियल</h2>
+ <p>यहाँ शिक्षक द्वारा जोड़े गए PDF नोट्स मिलेंगे।</p></div>`;
+ data.notes.forEach((n,i)=>html+=`
+ <div class="card"><h3>${safe(n.title)}</h3>
+ <a href="${n.data}" download="${safe(n.file)}">📥 PDF डाउनलोड करें</a>
+ </div>`);
+ $("content").innerHTML=html;
+}
+function showTests(){
+ let html=`<div class="card"><h2>📝 ऑनलाइन टेस्ट</h2>
+ <p>टेस्ट देने के लिए विद्यार्थी लॉगिन करें।</p></div>`;
+ data.tests.forEach((t,i)=>html+=`
+ <div class="card"><h3>${safe(t.title)}</h3>
+ <p>${safe(t.questions.length)} प्रश्न</p>
+ <button class="action" onclick="takeTest(${i})">टेस्ट शुरू करें</button>
+ </div>`);
+ $("content").innerHTML=html;
+}
+function takeTest(i){
+ if(!student){alert("पहले विद्यार्थी लॉगिन करें।");page("login");return;}
+ const t=data.tests[i];
+ let html=`<div class="card"><h2>${safe(t.title)}</h2>
+ <form id="testForm">`;
+ t.questions.forEach((q,j)=>{
+ html+=`<div class="item"><b>${j+1}. ${safe(q.text)}</b>`;
+ q.options.forEach((o,k)=>{
+ html+=`<label style="display:block;margin:10px">
+ <input style="display:inline;width:auto" type="radio"
+ name="q${j}" value="${k}" required> ${safe(o)}
+ </label>`;
+ });
+ html+=`</div>`;
+ });
+ html+=`<button class="action" type="submit">टेस्ट जमा करें</button></form></div>`;
+ $("content").innerHTML=html;
+ $("testForm").onsubmit=e=>{
+ e.preventDefault();
+ let score=0;
+ t.questions.forEach((q,j)=>{
+ const chosen=document.querySelector('input[name="q'+j+'"]:checked');
+ if(chosen&&Number(chosen.value)===q.answer)score++;
+ });
+ data.results.push({name:student.name,mobile:student.mobile,
+ title:t.title,score:score,total:t.questions.length,
+ date:new Date().toLocaleDateString("hi-IN")});
+ save();
+ $("content").innerHTML=`<div class="card"><h2>टेस्ट पूरा हुआ!</h2>
+ <h3>आपके अंक: ${score}/${t.questions.length}</h3>
+ <button class="action" onclick="page('tests')">वापस जाएँ</button></div>`;
+ };
+}
+function showResults(){
+ let html=`<div class="card"><h2>📊 रिजल्ट</h2>`;
+ if(!student)html+=`<p>अपना रिजल्ट देखने के लिए पहले लॉगिन करें।</p>`;
+ else{
+ const mine=data.results.filter(r=>r.mobile===student.mobile);
+ if(!mine.length)html+="<p>अभी कोई रिजल्ट नहीं है।</p>";
+ mine.forEach(r=>html+=`<div class="item">
+ <b>${safe(r.title)}</b><p>अंक: ${r.score}/${r.total}</p>
+ <small>${safe(r.date)}</small></div>`);
+ }
+ html+="</div>";
+ $("content").innerHTML=html;
+}
+function showAdmin(){
+ $("content").innerHTML=`
+ <div class="card"><h2>🔐 शिक्षक एडमिन पैनल</h2>
+ <div id="adminLogin">
+ <p>एडमिन पासवर्ड डालें:</p>
+ <input id="adminPass" type="password" placeholder="पासवर्ड">
+ <button class="action" onclick="adminEnter()">लॉगिन</button>
+ <p id="adminMsg"></p>
+ </div>
+ <div id="adminTools" style="display:none">
+ <h3>📚 PDF नोट्स जोड़ें</h3>
+ <input id="pdfTitle" placeholder="नोट्स का नाम">
+ <input id="pdfFile" type="file" accept="application/pdf">
+ <button class="action" onclick="addPDF()">PDF अपलोड करें</button>
+ <hr>
+ <h3>🎥 वीडियो क्लास जोड़ें</h3>
+ <input id="videoTitle" placeholder="क्लास का नाम">
+ <input id="videoURL" placeholder="YouTube लिंक">
+ <button class="action" onclick="addVideo()">वीडियो जोड़ें</button>
+ <hr>
+ <h3>📝 नया टेस्ट बनाएँ</h3>
+ <input id="testTitle" placeholder="टेस्ट का नाम">
+ <div id="questionFields"></div>
+ <button class="action secondary" onclick="addQuestionField()">+ प्रश्न जोड़ें</button>
+ <button class="action" onclick="createTest()">टेस्ट सेव करें</button>
+ <hr>
+ <h3>📋 सामग्री प्रबंधन</h3>
+ <div id="manageList"></div>
+ <button class="action" onclick="adminExit()">लॉगआउट</button>
+ </div></div>`;
+}
+function adminEnter(){
+ // केवल डेमो पासवर्ड; सुरक्षित लॉगिन नहीं
+ if($("adminPass").value==="1234"){
+ admin=true;
+ $("adminLogin").style.display="none";
+ $("adminTools").style.display="block";
+ addQuestionField();
+ manageList();
+ }else $("adminMsg").textContent="गलत पासवर्ड!";
+}
+function adminExit(){admin=false;showAdmin();}
+function addPDF(){
+ const title=$("pdfTitle").value.trim();
+ const file=$("pdfFile").files[0];
+ if(!title||!file||file.type!=="application/pdf"){
+ alert("नाम डालें और PDF फाइल चुनें।");return;
+ }
+ if(file.size>1500000){
+ alert("डेमो के लिए 1.5 MB से छोटी PDF चुनें।");return;
+ }
+ const reader=new FileReader();
+ reader.onload=()=>{
+ data.notes.push({title,file:file.name,data:reader.result});
+ if(save()){alert("PDF जुड़ गई!");manageList();}
+ };
+ reader.readAsDataURL(file);
+}
+function addVideo(){
+ const title=$("videoTitle").value.trim();
+ const url=$("videoURL").value.trim();
+ if(!title||!/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(url)){
+ alert("क्लास का नाम और सही YouTube लिंक डालें।");return;
+ }
+ data.videos.push({title,url});
+ if(save()){alert("वीडियो लिंक जुड़ गया!");manageList();}
+}
+function addQuestionField(){
+ const box=document.createElement("div");
+ box.className="item";
+ box.innerHTML=`
+ <h3>प्रश्न</h3>
+ <input class="qtext" placeholder="प्रश्न लिखें">
+ <input class="opt" placeholder="विकल्प A">
+ <input class="opt" placeholder="विकल्प B">
+ <input class="opt" placeholder="विकल्प C">
+ <input class="opt" placeholder="विकल्प D">
+ <select class="answer">
+ <option value="">सही विकल्प चुनें</option>
+ <option value="0">A सही है</option>
+ <option value="1">B सही है</option>
+ <option value="2">C सही है</option>
+ <option value="3">D सही है</option>
+ </select>`;
+ $("questionFields").appendChild(box);
+}
+function createTest(){
+ const title=$("testTitle").value.trim();
+ const fields=[...document.querySelectorAll("#questionFields .item")];
+ const questions=[];
+ for(const f of fields){
+ const text=f.querySelector(".qtext").value.trim();
+ const options=[...f.querySelectorAll(".opt")].map(x=>x.value.trim());
+ const answer=f.querySelector(".answer").value;
+ if(!text||options.some(x=>!x)||answer===""){
+ alert("हर प्रश्न के चारों विकल्प और सही उत्तर भरें।");return;
+ }
+ questions.push({text,options,answer:Number(answer)});
+ }
+ if(!title||!questions.length){alert("टेस्ट का नाम और कम से कम एक प्रश्न डालें।");return;}
+ data.tests.push({title,questions});
+ if(save()){alert("टेस्ट सेव हो गया!");manageList();}
+}
+function manageList(){
+ const box=$("manageList");
+ if(!box)return;
+ box.innerHTML="";
+ const all=[
+ ...data.notes.map((x,i)=>({type:"PDF",title:x.title,kind:"notes",i})),
+ ...data.videos.map((x,i)=>({type:"वीडियो",title:x.title,kind:"videos",i})),
+ ...data.tests.map((x,i)=>({type:"टेस्ट",title:x.title,kind:"tests",i}))
+ ];
+ if(!all.length){box.textContent="अभी कोई सामग्री नहीं है।";return;}
+ all.forEach(x=>{
+ const div=document.createElement("div");
+ div.className="item";
+ const label=document.createElement("span");
+ label.textContent=x.type+": "+x.title;
+ const del=document.createElement("button");
+ del.className="action";
+ del.textContent="हटाएँ";
+ del.onclick=()=>{
+ if(confirm("क्या इसे हटाना चाहते हैं?")){
+ data[x.kind].splice(x.i,1);save();manageList();
+ }
+ };
+ div.append(label,del);box.appendChild(div);
+ });
+}
+page("home");
+</script>
+</body>
+</html>
